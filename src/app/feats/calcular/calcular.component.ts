@@ -407,7 +407,7 @@ export class CalcularComponent {
     // Fórmula general y Pei
     const hojaResumen: any[][] = [
       ['COEFICIENTE DE VALIDEZ DE CONTENIDO (CVC) - HERNÁNDEZ-NIETO (2002)'],
-      ['CVC-Calculator v1.1.0 — https://coeficiente-de-validez-de-contenido.vercel.app/'],
+      ['CVC-Calculator v1.1.0 — https://cvc-calculator.vercel.app/'],
       [],
       ['Fórmula general del CVCi:'],
       ['CVCi = (Σ Xi / (N × Vmax))'],

@@ -1,6 +1,10 @@
 # CVC-Calculator — CHANGELOG
 
 ## v1.1.0 (2026-10-27)
+
+### Despliegue
+- La aplicación se sirve ahora en https://cvc-calculator.vercel.app/ (proyecto de Vercel conectado al
+  repositorio de GitHub; la URL anterior sigue mostrando la v1.0 registrada).
 Cambios en el núcleo de cálculo y en la validación de entrada, derivados de la verificación
 computacional realizada para el artículo (F1000Research, Software Tool Article).
 

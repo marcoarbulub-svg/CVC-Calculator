@@ -1,7 +1,7 @@
 # CVC-Calculator
 
 Open web application for computing Hernández-Nieto's chance-corrected Content Validity Coefficient (CVC).
-Live: https://coeficiente-de-validez-de-contenido.vercel.app/
+Live: https://cvc-calculator.vercel.app/
 
 - Version 1.1.0 — see `CHANGELOG.md` and `v1.0_to_v1.1.0.diff`.
 - Stack: Angular 18, TypeScript 5.5; no backend; static deployment (Vercel). Anonymous usage counter via Firebase RTDB (no session data transmitted).
