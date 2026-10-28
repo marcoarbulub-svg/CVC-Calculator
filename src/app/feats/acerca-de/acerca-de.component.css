@@ -1,0 +1,27 @@
+/* Sección Acerca de */
+.acerca-container {
+  background: #fff;
+  border-radius: 10px;
+  padding: 30px;
+  margin: 40px auto;
+  max-width: 900px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.acerca-container h2 {
+  color: var(--secondary-green);
+  margin-bottom: 20px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.acerca-container p {
+  text-align: justify;
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 15px;
+}
+
+.acerca-container strong {
+  color: var(--primary-green);
+}

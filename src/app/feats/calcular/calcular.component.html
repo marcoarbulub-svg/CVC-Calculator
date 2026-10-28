@@ -1,0 +1,178 @@
+<div
+  class="calcular-wrapper"
+  [class.with-padding]="puntajes.length === 0"
+>
+
+  <div class="calcular-coef">
+    <h2>Calcular Coeficiente de Validez de Contenido</h2>
+  </div>
+
+  <div class="parametros-title">
+    <h3>Ingreso de Parámetros Iniciales</h3>
+  </div>
+  
+  <!-- Datos iniciales -->
+  <div class="config-inicial">
+    
+    <label>Cantidad de variables:</label>
+    <input type="number" min="1" max="4"
+      [(ngModel)]="numVariablesInput"
+      (change)="generarVariables()"
+      (blur)="validarCampo('numVariablesInput')"
+      (input)="onValoresInicialesCambiados()"/>
+    <div class="input-error" *ngIf="erroresInputs.numVariablesInput">{{ erroresInputs.numVariablesInput }}</div>
+
+    <label>Escala:</label>
+    <input type="number" min="3" max="20"
+      [(ngModel)]="scaleInput"
+      (blur)="validarCampo('scaleInput')"
+      (input)="onValoresInicialesCambiados()"/>
+    <div class="input-error" *ngIf="erroresInputs.scaleInput">{{ erroresInputs.scaleInput }}</div>
+
+    <label>Número de jueces:</label>
+    <input type="number" min="3" max="15"
+      [(ngModel)]="juecesInput"
+      (blur)="validarCampo('juecesInput')"
+      (input)="onValoresInicialesCambiados()"/>
+    <div class="input-error" *ngIf="erroresInputs.juecesInput">{{ erroresInputs.juecesInput }}</div>
+  </div>
+
+  <div class="variables-dinamicas" *ngIf="variablesConfigInput.length > 0">
+    <div *ngFor="let varObj of variablesConfigInput; let i = index" class="var-config">
+      <label>Nombre Variable {{i + 1}}:</label>
+      <input [(ngModel)]="varObj.nombre" (blur)="validarCampo('nombreVar', i)" (input)="onValoresInicialesCambiados()"/>
+      <div class="input-error" *ngIf="erroresInputs.variablesConfigInput[i].nombre">
+        {{ erroresInputs.variablesConfigInput[i].nombre }}
+      </div>
+
+      <label>Número de ítems:</label>
+      <input type="number" min="2" max="200" [(ngModel)]="varObj.nItems" (blur)="validarCampo('nItemsVar', i)" (input)="onValoresInicialesCambiados()"/>
+      <div class="input-error" *ngIf="erroresInputs.variablesConfigInput[i].nItems">
+        {{ erroresInputs.variablesConfigInput[i].nItems }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Botones -->
+  <button *ngIf="mostrarGenerarTablas" (click)="generarTabla()">Generar Tablas</button>
+  <div *ngIf="errorMessage" class="error-msg">
+    {{ errorMessage }}
+  </div>
+
+  <button 
+    *ngIf="variablesConfigInput.length > 0" 
+    class="btn btn-secondary mt-2"
+    (click)="restablecerInputs()">
+    Restablecer parámetros iniciales
+  </button>
+
+  <button 
+    *ngIf="variablesConfigInput.length > 0" 
+    class="btn btn-secondary mt-2"
+    (click)="anterioresInputs()">
+    Restaurar parámetros previos
+  </button>  
+
+  <button 
+    *ngIf="puntajes && puntajes.length > 0 && mostrarBotonRestablecer" 
+    class="btn btn-warning mt-3" 
+    (click)="restablecerTabla()">
+    Restablecer tabla
+  </button>
+
+  <!-- Tablas y resultados -->
+  <div *ngIf="puntajes.length > 0" class="tabla-puntajes">
+    <label class="label-strong">Fórmula CVCi:</label>
+    <img src="assets/img/formulacvci.png" alt="Fórmula CVCi" class="formula-img">
+
+    <p>
+      <strong>Pei calculado:</strong> {{ calcularPei() }} 
+      <span>- Con fórmula:</span>
+    </p>
+    <img src="assets/img/formulapei.png" alt="Fórmula Pei" class="pei-img">
+
+    <!-- Tabla por Variable -->
+    <div *ngFor="let variable of variables; let vIndex = index" class="variable-section">
+      <h3>Variable {{variable}} - <span class="escala-info"> Escala de evaluación: {{ scale }} puntos</span> </h3>
+      
+      <table border="1">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th *ngFor="let j of [].constructor(jueces || 0); let jIndex = index; trackBy: trackByIndex">
+              Juez {{jIndex + 1}}
+            </th>
+            <th>Suma</th>
+            <th>Promedio</th>
+            <th>CVCi</th>
+            <th>CVCi-Pei</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngFor="let item of puntajes[vIndex]; let nIndex = index; trackBy: trackByIndex">
+            <tr>
+              <td>{{nIndex + 1}}</td>
+              <td *ngFor="let puntuacion of item; let jIndex = index; trackBy: trackByIndex">
+                <input type="number"
+                  [ngModel]="puntajes[vIndex][nIndex][jIndex]"
+                  (ngModelChange)="puntajes[vIndex][nIndex][jIndex] = $event"
+                  (keydown)="moveFocus($event, vIndex, nIndex, jIndex)"
+                  [attr.data-v-index]="vIndex"
+                  [attr.data-n-index]="nIndex"
+                  [attr.data-j-index]="jIndex"
+                  style="width: 60px;"
+                  [ngModelOptions]="{standalone: true}" 
+                  (input)="onEditarCelda()"/>
+              </td>
+              <td>{{resultados?.variables[vIndex]?.items[nIndex]?.suma || ''}}</td>
+              <td>{{resultados?.variables[vIndex]?.items[nIndex]?.promedio || '' | number:'1.2-4'}}</td>
+              <td>{{resultados?.variables[vIndex]?.items[nIndex]?.CVCi || '' | number:'1.2-4'}}</td>
+              <td>{{resultados?.variables[vIndex]?.items[nIndex]?.CVCi_Pei || '' | number:'1.2-4'}}</td>
+            </tr>
+          </ng-container>
+
+          <!-- Resultados finales -->
+          <tr class="fila-resultados">
+            <td [attr.colspan]="(jueces || 0) + 5" class="celda-resultados">
+              <div class="resultado-box full-width">
+                <div class="resultado-texto">
+                  <h4>Promedio Total:</h4>
+                  <p class="valor-destacado" [ngClass]="getColorClass(resultados?.variables[vIndex]?.categoria)">
+                    {{ resultados?.variables[vIndex]?.promedio_total ?? '' | number:'1.2-4' }}
+                  </p>
+
+                  <h4>Categoría:</h4>
+                  <p class="categoria-destacada" [ngClass]="getColorClass(resultados?.variables[vIndex]?.categoria)">
+                    {{ resultados?.variables[vIndex]?.categoria ?? '' }}
+                  </p>
+                  <p class="nota-unanimidad" *ngIf="resultados?.variables[vIndex]?.unanimidad_maxima">
+                    Unanimidad máxima: todos los jueces asignaron el puntaje máximo a todos los ítems (CVCt = 1 − Pei).
+                  </p>
+                </div>
+
+                <!-- Interpretación -->
+                <div class="interpretacion-img">
+                  <p class="interpretacion-titulo">Interpretación de resultados</p>
+                  <img src="assets/img/interpretacion.png" alt="Interpretación CVCI" />
+                </div>
+              </div>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Botones finales -->
+    <button (click)="calcular()">Calcular</button>
+    <div *ngIf="errorCalculoMessage" class="error-msg">
+      {{ errorCalculoMessage }} </div>
+    <button *ngIf="resultados" (click)="exportarExcel()">Exportar a Excel</button>
+
+    
+  </div>
+
+
+  <!-- TODO el contenido de tu componente aquí -->
+</div>
+
